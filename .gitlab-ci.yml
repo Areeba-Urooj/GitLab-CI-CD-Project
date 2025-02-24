@@ -19,8 +19,11 @@ test:
   dependencies:
     - build
   script:
+    - apk add curl
     - npm install -g serve
-    - serve -s build
+    - serve -s build &
+    - sleep 10
+    - curl http://localhost:3000 | grep "React App"
 
 unit tests:
   image: node:16-alpine
