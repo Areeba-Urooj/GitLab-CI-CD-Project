@@ -20,3 +20,11 @@ test:
     - build
   script:
     - test -f build/index.html 
+
+
+unit tests:
+  image: node:16-alpine
+  stage: test
+  script: 
+    - npm install
+    - npm test
