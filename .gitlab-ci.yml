@@ -9,11 +9,9 @@ build:
   script:
     - npm install
     - npm run build
-    - ls -la build/  
   artifacts:
     paths:
       - build/
-    expire_in: 1 hour
 
 test:
   image: alpine
@@ -21,6 +19,4 @@ test:
   dependencies:
     - build
   script:
-    - ls -la  
-    - ls -la build/ || echo "Build directory not found"
-    - test -f build/index.html || echo "index.html not found in build directory"
+    - test -f build/index.html 
