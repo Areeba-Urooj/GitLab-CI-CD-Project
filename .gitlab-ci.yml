@@ -11,6 +11,7 @@ build website:
         paths:
             - build
 test website:
+    stage: test
     image: alpine
     script:
         - test -f build/index.html
