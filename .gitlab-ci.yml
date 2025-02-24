@@ -1,17 +1,24 @@
-stages:
-    - build
-    - test
 
-build website:
-    image: node:16-alpine
-    script:
-        - npm install
-        - npm run build
-    artifacts:
-        paths:
-            - build/
-test website:
-    stage: test
-    image: alpine
-    script:
-        - test -f build/index.html
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script:
+    - npm install
+    - npm run build
+    - ls -la build/  # Debug: List the build directory contents
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 hour
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - ls -la  # Debug: List the working directory
+    - ls -la build/ || echo "Build directory not found"
+    - test -f build/index.html || echo "index.html not found in build directory"
