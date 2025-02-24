@@ -9,7 +9,7 @@ build website:
         - npm run build
     artifacts:
         paths:
-            - build
+            - build/
 test website:
     stage: test
     image: alpine
