@@ -4,7 +4,7 @@ stages:
   - test
   - deploy
 
-build:
+.build:
   stage: build
   image: node:20-alpine
   script:
@@ -14,7 +14,7 @@ build:
     paths:
       - build/
 
-deploy:
+.deploy:
   stage: deploy
   image: node:20-alpine
   script:
@@ -29,7 +29,7 @@ deploy:
   dependencies:
     - build
 
-test:
+.test:
   image: node:20-alpine
   stage: test
   dependencies:
@@ -41,9 +41,17 @@ test:
     - sleep 10
     - curl http://localhost:3000 | grep "React App"
 
-unit tests:
+.unit tests:
   image: node:16-alpine
   stage: test
   script:
     - npm install
     - npm test
+
+deploy to s3:
+  stage: deploy
+  image: 
+    name: amazon/aws-ci:2.4.11
+    entrypoint: [""]
+  script:
+    - aws --version
