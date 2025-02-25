@@ -2,6 +2,7 @@
 stages:
   - build
   - test
+  - deploy
 
 build:
   stage: build
@@ -12,6 +13,21 @@ build:
   artifacts:
     paths:
       - build/
+
+deploy:
+  stage: deploy
+  image: node:20-alpine
+  script:
+    - mkdir -p public
+    - cp -r build/* public/ || echo "Failed to copy build files"
+    - ls -la public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+  dependencies:
+    - build
 
 test:
   image: node:20-alpine
