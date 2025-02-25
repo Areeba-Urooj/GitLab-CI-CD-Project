@@ -55,3 +55,5 @@ deploy to s3:
   stage: deploy
   script:
     - aws --version
+    - echo "Hello s3" > test.txt
+    - aws s3 cp test.txt $AWS_S3_BUCKET/test.txt
