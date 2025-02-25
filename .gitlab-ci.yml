@@ -9,9 +9,13 @@ build:
   script:
     - npm install
     - NODE_OPTIONS=--openssl-legacy-provider npm run build
+    - mkdir -p public
+    - cp -r build/* public/
   artifacts:
     paths:
-      - build/
+      - public
+  only:
+    - main
 
 test:
   image: node:20-alpine
@@ -25,7 +29,7 @@ test:
     - sleep 10
     - curl http://localhost:3000 | grep "React App"
 
-unit tests:
+.unit tests:
   image: node:16-alpine
   stage: test
   script:
