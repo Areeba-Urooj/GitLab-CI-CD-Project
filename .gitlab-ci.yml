@@ -4,7 +4,7 @@ stages:
   - test
   - deploy
 
-.build:
+build:
   stage: build
   image: node:20-alpine
   script:
@@ -14,7 +14,7 @@ stages:
     paths:
       - build/
 
-.deploy:
+deploy:
   stage: deploy
   image: node:20-alpine
   script:
@@ -29,7 +29,7 @@ stages:
   dependencies:
     - build
 
-.test:
+test:
   image: node:20-alpine
   stage: test
   dependencies:
@@ -41,7 +41,7 @@ stages:
     - sleep 10
     - curl http://localhost:3000 | grep "React App"
 
-.unit tests:
+unit tests:
   image: node:16-alpine
   stage: test
   script:
@@ -56,4 +56,4 @@ deploy to s3:
   script:
     - aws --version
     - echo "Hello s3" > test.txt
-    - aws s3 cp test.txt $AWS_S3_BUCKET/test.txt
+    - aws s3 sync build $AWS_S3_BUCKET --delete
