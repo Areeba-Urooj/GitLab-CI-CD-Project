@@ -9,9 +9,13 @@ build:
   script:
     - npm install
     - NODE_OPTIONS=--openssl-legacy-provider npm run build
+    - mkdir -p public
+    - cp -r build/* public/
   artifacts:
     paths:
-      - build/
+      - public
+  only:
+    - main
 
 test:
   image: node:20-alpine
