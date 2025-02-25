@@ -1,10 +1,17 @@
-
 stages:
   - build
   - test
   - deploy
+  - deploy production
+  - test production
+  - deploy staging
+  - test staging
 
-.build:
+variables:
+  APP_BASE_URL: http://areeba-gitlab-ci.s3-website.ap-south-1.amazonaws.com
+  APP_BASE_URL_STAGING: http://areeba-gitlab-ci-staging.s3-website.ap-south-1.amazonaws.com
+
+build:
   stage: build
   image: node:20-alpine
   script:
@@ -14,7 +21,7 @@ stages:
     paths:
       - build/
 
-.deploy:
+deploy:
   stage: deploy
   image: node:20-alpine
   script:
@@ -29,7 +36,7 @@ stages:
   dependencies:
     - build
 
-.test:
+test:
   image: node:20-alpine
   stage: test
   dependencies:
@@ -41,19 +48,49 @@ stages:
     - sleep 10
     - curl http://localhost:3000 | grep "React App"
 
-.unit tests:
+unit tests:
   image: node:16-alpine
   stage: test
   script:
     - npm install
     - npm test
 
-deploy to s3:
+deploy to staging:
   image:
     name: amazon/aws-cli:2.22.4
     entrypoint: [""]
-  stage: deploy
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  stage: deploy staging
   script:
     - aws --version
-    - echo "Hello s3" > test.txt
-    - aws s3 cp test.txt $AWS_S3_BUCKET/test.txt
+    - aws s3 sync build $AWS_S3_BUCKET_STAGING --delete
+
+staging tests:
+  stage: test staging
+  image: curlimages/curl
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  script:
+    - curl $APP_BASE_URL_STAGING | grep "React App"
+
+deploy to production:
+  image:
+    name: amazon/aws-cli:2.22.4
+    entrypoint: [""]
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  stage: deploy production
+  script:
+    - aws --version
+    - aws s3 sync build $AWS_S3_BUCKET --delete
+
+production tests:
+  stage: test production
+  image: curlimages/curl
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  script:
+    - curl $APP_BASE_URL | grep "React App"
+
+
