@@ -1,166 +1,195 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# GitLab CI/CD Project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+This comprehensive guide details the implementation of a robust CI/CD pipeline for a React application using GitLab CI/CD. The pipeline streamlines the development workflow by automating the build, test, and deployment processes to both staging and production environments hosted on AWS S3.
 
-In the project directory, you can run:
+Our CI/CD pipeline ensures code quality and reliability through automated testing while providing a seamless deployment experience. This approach significantly reduces manual intervention, minimizes deployment errors, and accelerates the delivery of new features to users.
 
-### `npm start`
+![CI/CD Pipeline Visualization](gl-1.png)
+*Visual representation of our React application pipeline flow*
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Pipeline Architecture
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The pipeline consists of six sequential stages designed to validate and deploy code with increasing levels of confidence:
 
-### `npm test`
+1. **Build** - Compiles and packages the React application
+2. **Test** - Validates application functionality through automated tests
+3. **Deploy Staging** - Pushes code to the staging environment for pre-production verification
+4. **Test Staging** - Confirms the staging deployment functions correctly
+5. **Deploy Production** - Delivers validated code to the production environment
+6. **Test Production** - Verifies the production deployment meets all requirements
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Environment URLs
 
-### `npm run build`
+Access the deployed applications at:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* **Production Environment**: [http://areeba-gitlab-ci.s3-website.ap-south-1.amazonaws.com](http://areeba-gitlab-ci.s3-website.ap-south-1.amazonaws.com)
+* **Staging Environment**: [http://areeba-gitlab-ci-staging.s3-website.ap-south-1.amazonaws.com](http://areeba-gitlab-ci-staging.s3-website.ap-south-1.amazonaws.com)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Detailed Stage Breakdown
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Build Stage
 
-### `npm run eject`
+The build stage creates a deployable version of the application using a Node.js 20 Alpine container image.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**Key operations:**
+* Installs all project dependencies via `npm install`
+* Builds the application with legacy OpenSSL provider enabled to ensure compatibility
+* Preserves build artifacts for subsequent pipeline stages using GitLab's artifact management
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Test Stage
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The test stage runs two parallel jobs to ensure application quality:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Functional Testing:**
+* Serves the built application locally using the lightweight `serve` package
+* Verifies application availability by checking for the presence of "React App" in the response
+* Confirms the application renders correctly in a production-like environment
 
-## Learn More
+**Unit Testing:**
+* Executes the application's automated test suite via `npm test`
+* Validates individual components and functions work as expected
+* Catches regressions before code reaches production
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Deploy Stage
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The deploy stage prepares application artifacts for deployment to both environments:
 
-### Code Splitting
+**Key operations:**
+* Creates a dedicated public directory structure for web hosting
+* Copies all build files into the public directory
+* Only executes when changes are pushed to the main branch
+* Ensures all assets are properly organized for S3 deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+![Deploy Stage Configuration](gl-2.png)
+![Deploy Stage Process](gl-3.png)
+![Deploy Stage Completion](gl-4.png)
+*Screenshots showing the deploy stage execution logs*
 
-### Analyzing the Bundle Size
+## AWS Configuration & Preparation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### IAM User Configuration
 
-### Making a Progressive Web App
+Before implementing the deployment pipeline, we created a dedicated IAM user with the appropriate permissions for S3 operations. This approach follows the principle of least privilege, ensuring the pipeline has only the permissions necessary to deploy the application without compromising security.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Benefits of dedicated IAM user:**
+* Limits access to only required AWS resources
+* Provides an isolated security context for CI/CD operations
+* Enables credential rotation without affecting other systems
+* Simplifies auditing and tracking of deployment activities
 
-### Advanced Configuration
+### Deploy to Staging Environment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The staging deployment process pushes the application to a pre-production environment that mirrors production:
 
-### Deployment
+**Key operations:**
+* Utilizes AWS CLI to synchronize the build directory with the staging S3 bucket
+* Only triggers on the default (main) branch to prevent unauthorized deployments
+* References the `$AWS_S3_BUCKET_STAGING` environment variable to identify the correct destination
+* Ensures all static assets maintain proper permissions and content types
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Test Staging Environment
 
-### `npm run build` fails to minify
+After deploying to staging, automated verification ensures the deployment was successful:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# react-ci-cd
+**Key features:**
+* Performs HTTP requests to the staging URL to verify availability
+* Validates application content by checking for the presence of "React App" in the response
+* Provides immediate feedback on deployment success or failure
+* Acts as a gate before proceeding to production deployment
 
+### Deploy to Production Environment
 
+Once testing confirms the staging deployment is successful, the pipeline proceeds to production:
 
-## Getting started
+**Key operations:**
+* Employs AWS CLI to synchronize build files with the production S3 bucket
+* Executes only on the default branch to maintain deployment control
+* Utilizes the `$AWS_S3_BUCKET` environment variable to target the production environment
+* Maintains identical file structure and permissions as staging
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Test Production Environment
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+The final stage verifies the production deployment meets all requirements:
 
-## Add your files
+**Key features:**
+* Runs the same verification process as staging but against the production URL
+* Confirms the application is accessible to end users
+* Validates critical application content
+* Provides final confirmation of successful deployment completion
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+![S3 Static Website Hosting URL](gl-7.png)
+*Accessing the application through the S3 static website hosting URL*
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/Areeba-Urooj/react-ci-cd.git
-git branch -M main
-git push -uf origin main
-```
+![Production Application UI - 1](gl-9.png)
+![Production Application UI - 2](gl-10.png)
+*Screenshots of the successfully deployed application*
 
-## Integrate with your tools
+![S3 Deployment Log - 1](gl-8.png)
+![S3 Deployment Log - 2](gl-88.png)
+![S3 Deployment Log - 3](gl-888.png)
+*Logs confirming successful S3 deployment*
 
-- [ ] [Set up project integrations](https://gitlab.com/Areeba-Urooj/react-ci-cd/-/settings/integrations)
+## Configuration Requirements
 
-## Collaborate with your team
+The pipeline relies on several environment variables that must be configured in GitLab:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+| Variable | Description | Purpose |
+|----------|-------------|---------|
+| `AWS_S3_BUCKET` | Production bucket URL | Deployment destination for production |
+| `AWS_S3_BUCKET_STAGING` | Staging bucket URL | Deployment destination for staging |
+| `AWS_ACCESS_KEY_ID` | AWS access credential | Authentication for S3 operations |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret credential | Authentication for S3 operations |
+| `AWS_DEFAULT_REGION` | AWS region identifier | Specifies the deployment region |
 
-## Test and Deploy
+**Note:** For security reasons, all AWS credentials should be configured as masked variables in GitLab CI/CD settings.
 
-Use the built-in continuous integration in GitLab.
+## Implementation Guide
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+To implement this pipeline for your own React application, follow these steps:
 
-***
+1. **Set up AWS resources:**
+   * Create two S3 buckets (production and staging)
+   * Configure both buckets for static website hosting
+   * Set appropriate bucket policies for public access
 
-# Editing this README
+2. **Configure GitLab variables:**
+   * Navigate to Settings > CI/CD > Variables
+   * Add all required AWS credentials and bucket information
+   * Mark sensitive credentials as "masked" and "protected"
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+3. **Commit pipeline configuration:**
+   * Add the `.gitlab-ci.yml` file to your repository root
+   * Ensure your React application includes the text "React App" in its HTML (or modify the verification step)
+   * Push changes to trigger the initial pipeline run
 
-## Suggestions for a good README
+4. **Verify deployment:**
+   * Monitor the pipeline execution in GitLab
+   * Check each stage for successful completion
+   * Visit both staging and production URLs to confirm deployment
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Troubleshooting
 
-## Name
-Choose a self-explaining name for your project.
+If you encounter issues with the pipeline, check these common problem areas:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+* **Build failures:** Verify Node.js compatibility and dependency availability
+* **Test failures:** Ensure tests are properly configured and application content matches verification criteria
+* **Deployment failures:** Check AWS credentials, bucket permissions, and S3 configuration
+* **URL accessibility:** Confirm bucket policy allows public access and website hosting is enabled
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Common error:** If you receive errors during the deploy stage, first verify your AWS credentials and ensure the IAM user has appropriate S3 permissions.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Best Practices
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+To maintain an effective CI/CD pipeline:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+* Regularly rotate AWS credentials for security
+* Add additional test coverage as the application evolves
+* Consider implementing a manual approval step before production deployment
+* Monitor S3 access logs for unexpected traffic patterns
+* Back up bucket configurations to prevent accidental changes
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
->>>>>>> 596659c57d55e3fa822a3f44f732713921c718f0
+This CI/CD implementation demonstrates a streamlined approach to React application deployment using GitLab and AWS S3. The multi-stage pipeline ensures code quality while providing reliable, automated deployments to both staging and production environments.
