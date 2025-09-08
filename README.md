@@ -62,9 +62,9 @@ The deploy stage prepares application artifacts for deployment to both environme
 * Only executes when changes are pushed to the main branch
 * Ensures all assets are properly organized for S3 deployment
 
-![Deploy Stage Configuration](gl-2.png)
-![Deploy Stage Process](gl-3.png)
-![Deploy Stage Completion](gl-4.png)
+![Deploy Stage Configuration](src/image/gl-2.png)
+![Deploy Stage Process](src/image/gl-3.png)
+![Deploy Stage Completion](src/image/gl-4.png)
 *Screenshots showing the deploy stage execution logs*
 
 ## AWS Configuration & Preparation
@@ -119,16 +119,16 @@ The final stage verifies the production deployment meets all requirements:
 * Validates critical application content
 * Provides final confirmation of successful deployment completion
 
-![S3 Static Website Hosting URL](gl-7.png)
+![S3 Static Website Hosting URL](src/image/gl-7.png)
 *Accessing the application through the S3 static website hosting URL*
 
-![Production Application UI - 1](gl-9.png)
-![Production Application UI - 2](gl-10.png)
+![Production Application UI - 1](src/image/gl-9.png)
+![Production Application UI - 2](src/image/gl-10.png)
 *Screenshots of the successfully deployed application*
 
-![S3 Deployment Log - 1](gl-8.png)
-![S3 Deployment Log - 2](gl-88.png)
-![S3 Deployment Log - 3](gl-888.png)
+![S3 Deployment Log - 1](src/image/gl-8.png)
+![S3 Deployment Log - 2](src/image/gl-88.png)
+![S3 Deployment Log - 3](src/image/gl-888.png)
 *Logs confirming successful S3 deployment*
 
 ## Configuration Requirements
