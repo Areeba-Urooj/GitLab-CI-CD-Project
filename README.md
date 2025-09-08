@@ -6,7 +6,7 @@ This comprehensive guide details the implementation of a robust CI/CD pipeline f
 
 Our CI/CD pipeline ensures code quality and reliability through automated testing while providing a seamless deployment experience. This approach significantly reduces manual intervention, minimizes deployment errors, and accelerates the delivery of new features to users.
 
-![CI/CD Pipeline Visualization](gl-1.png)
+![CI/CD Pipeline Visualization](src/image/gl-1.png)
 *Visual representation of our React application pipeline flow*
 
 ## Pipeline Architecture
